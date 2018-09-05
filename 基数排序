@@ -1,0 +1,50 @@
+bool SortRadix(elem_type *arr, int len, int radix)   //基数排序
+{
+	SEQ_QUEUE *p[10];
+	for (int i = 0; i < 10; i++)
+	{
+		p[i] = InitQueue();
+	}
+
+	int num = MaxLength(GetMax(arr, len));
+
+	for(int i = 0; i < num; i++)
+	{
+		for(int j = 0; j < len; j++)
+		{
+			int index = arr[j] / (int)pow((float)radix, i) % radix;
+			Push(p[index], arr[j]);
+		}
+
+		elem_type e = 0;
+		int k = 0;
+		for (int j = 0; j < radix; j++)
+		{
+			while(!IsEmpty(p[j]))
+			{
+				Pop(p[j], &e);
+				arr[k] = e;
+				k++;
+			}
+		}
+	}
+
+	for(int i = 0; i < 10; i++)
+	{
+		Destory(p[i]);
+	}
+
+	return true;
+}
+
+
+#include "SEQ_QUEUE_CHANGE.h"
+
+int main()
+{
+	elem_type arr[] = {8,61,423,782,54,985,546,40,97,321,782,89,758,85,643,570,543,53,765,86};
+	int len = sizeof(arr) / sizeof(sizeof(arr[0]));
+	SortRadix(arr, len, 10);
+	PrintArray(arr, len);
+	return 0;
+}
