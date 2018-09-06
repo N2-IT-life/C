@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int partation(int *arr, int low, int high)
+{
+	int tmp = arr[low];
+	while(low < high)
+	{
+		while(arr[high] >= tmp  && low < high)
+		{
+			high--;
+		}
+		if (low < high)
+		{
+			arr[low] = arr[high];
+			low++;
+		}
+		
+		while(arr[low] < tmp && low < high)
+		{
+			low++;
+		}
+		if (low < high)
+		{
+			arr[high] = arr[low];
+			high--;
+		}
+	}
+	arr[low] = tmp;
+
+	return low;
+}
+
+void quick(int *arr, int low, int high)
+{
+	int base = partation(arr, low, high);
+	if (low < base - 1)
+	{
+		quick(arr, low, base - 1);
+	}
+	if (base + 1 < high)
+	{
+		quick(arr, base + 1, high);
+	}
+	
+}
+
+void QSort(int *arr, int len)//马甲函数
+{
+	quick(arr, 0, len - 1);
+}
+
+void ShowArr(int *arr, int len)
+{
+	for (int i = 0; i < len; i++)
+	{
+		printf("%d  ", arr[i]);
+	}
+	printf("\n");
+}
+
+
+///////非递归
+
+void QSortLoop(int *arr, int low, int high)
+{
+	int stack[20] = {0};
+	int top = 0;
+
+	stack[top++] = low;
+	stack[top++] = high;
+	int base;
+
+	while(top != 0)
+	{
+		high = stack[--top];
+		low = stack[--top];
+
+		base = partation(arr, low, high);
+
+		if (low < base - 1)
+		{
+			stack[top++] = low;
+			stack[top++] = base - 1;
+		}
+
+		if (base + 1 < high)
+		{
+			stack[top++] = base + 1;
+			stack[top++] = high;
+		}
+	}
+}
+
+int main()
+{
+	int arr[] = {43,56,23,76,89,99,87,32,13,22,66};
+	int len = sizeof(arr) / sizeof(arr[0]);
+
+	QSort(arr, len);
+	ShowArr(arr, len);
+
+
+
+	//int base1 = partation(arr, 0, len - 1);
+	//printf("base1 : %d  \n", base1);
+	//ShowArr(arr, len);
+
+
+	//int base2 = partation(arr, 0, base1 - 1);
+	//printf("base2 : %d  \n", base2);
+	//ShowArr(arr, len);
+
+	//int base3 = partation(arr, base1 + 1, len - 1);
+	//printf("base3 : %d  \n", base3);
+	//ShowArr(arr, len);
+
+	//QSortLoop(arr, 0, len - 1);
+
+	return 0;
+}
