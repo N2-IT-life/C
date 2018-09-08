@@ -1,0 +1,56 @@
+void Shell(int *arr, int len, int gap)
+{
+    int i = 0;
+    int j = 0;
+    int tmp = 0;
+
+    for (i = gap; i < len; i++)
+   {
+        tmp = arr[i];
+        for (j = i - gap; j >= 0; j -= gap)
+       {
+              if (tmp > arr[j])
+             {
+                  break;
+              }
+             arr[j + gap] = arr[j];
+        }
+
+       arr[j + gap] = tmp;
+   }
+}
+
+
+void ShellSort(int *arr, int len)
+{
+    int num[] = {3, 1};
+    int l = sizeof(num) / sizeof(num[0]);
+
+    for(int i = 0; i < l; i++)
+   {
+      Shell(arr, len, num[i]);
+   }
+}
+
+
+void ShowArr(int *arr, int len)
+{
+for(int i = 0; i < len; i++)
+{
+printf("%d  ", arr[i]);
+}
+printf("\n");
+}
+
+int main()
+{
+int arr[] = {32,65,76,38,78,2,67,89,63,99};
+int len = sizeof(arr) / sizeof(arr[0]);
+
+//InsertSort(arr, len);
+ShellSort(arr, len);
+
+ShowArr(arr, len);
+
+return 0;
+}
