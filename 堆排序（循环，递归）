@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <assert.h>
+
+void Swap(void *a, void *b, int width)
+{
+	void *tmp = malloc(width);
+	assert(tmp != NULL);
+
+	memcpy(tmp, a, width);
+	memcpy(a, b, width);
+	memcpy(b, tmp, width);
+
+	free(tmp);
+}
+
+void HeapAdjust(int *arr, int start, int len)
+{
+	int tmp = arr[start];
+	for (int i = start*2 + 1; i < len; i = i*2+1)
+	{
+		if (i + 1 < len && arr[i + 1] > arr[i])//右孩子大于左孩子
+		{
+			i++;
+		}
+
+		if (tmp < arr[i])
+		{
+			arr[start] = arr[i];
+		}
+		else
+		{
+			break;
+		}
+		start = i;//向下调整
+	}
+	arr[start] = tmp;
+}
+
+void HeapSort(int *arr, int len)
+{
+	for(int i = (len - 2) / 2; i >= 0; i--)
+	{
+		HeapAdjust(arr, i, len);//经过循环创建了大根堆
+	}
+	Swap((void*)&arr[0], (void*)&arr[len - 1],  sizeof(int));//开始断尾
+
+	for (int k = len - 1; k > 1; k--)
+	{
+		HeapAdjust(arr, 0, k);//开始将根与最后一个节点交换，并且调整
+		Swap((void*)&arr[0], (void*)&arr[k - 1], sizeof(int));
+	}
+}
+
+
+void Show(int *arr, int len)
+{
+	for (int i = 0; i < len; i++)
+	{
+		printf("%d  ", arr[i]);
+	}
+	printf("\n");
+}
+//////////////////////////////////////////////////////////递归堆排序
+void HeapAdjustDIGUI(int *arr, int start, int len)
+{
+	int tmp = arr[start];
+	int i = start * 2 + 1;//i为左孩子
+
+	if (i >= len)
+	{
+		return;
+	}
+
+	if (i + 1 < len && arr[i + 1] > arr[i])//和右孩子比较起来
+	{
+		i++;
+	}
+
+	if (tmp < arr[i])
+	{
+		arr[start] =  arr[i];
+	}
+	else
+	{
+		return;
+	}
+	arr[i] =  tmp;
+
+	HeapAdjustDIGUI(arr, i, len);
+
+}
+
+
+void HeapSortDIGUI(int *arr, int len)
+{
+	for(int i = (len - 2) / 2; i >= 0; i--)
+	{
+		HeapAdjustDIGUI(arr, i, len);//递归建立最大堆
+	}
+	Swap((void*)&arr[0], (void*)&arr[len - 1],  sizeof(int));
+
+	for (int k = len - 1; k > 1; k--)
+	{
+		HeapAdjustDIGUI(arr, 0, k);
+		Swap((void*)&arr[0], (void*)&arr[k - 1], sizeof(int));
+	}
+}
+
+int main()
+{
+	int arr[] = {78,34,87,2,79,43,12,65,23,11};
+	int len = sizeof(arr) / sizeof(arr[0]);
+
+	HeapSortDIGUI(arr, len);
+	Show(arr, len);
+
+	return 0;
+}
