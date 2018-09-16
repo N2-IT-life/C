@@ -1,0 +1,189 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+
+#define MAX 30021
+#define NUM 3000
+#define PART 1000
+
+extern void MergeSort(int *arr, int len);
+
+void creat_bigfile(char *name, int num)   //创建大文件
+{
+	FILE *fw = fopen(name, "wb");
+	assert(fw != NULL);
+
+	int tmp = 0;
+	for(int i = 0; i < num; i++)
+	{
+		tmp = rand();
+		fwrite(&tmp, sizeof(int), 1, fw);
+	}
+
+	fclose(fw);
+}
+
+void copy_file(char *name, char *buff)
+{
+	FILE *fw = fopen(name, "wb");
+	FILE *bu = fopen("e:\\buff.data", "rb");
+	int tmp = 0;
+	while (fread(&tmp, sizeof(int), 1, bu))
+	{
+		fwrite(&tmp, sizeof(int), 1, fw);
+	}
+
+	fclose(fw);
+	fclose(bu);
+	remove("e:\\buff.data");
+}
+
+
+void Base(char *name)                   //先3000有序
+{
+	FILE *fr = fopen(name, "rb");
+	FILE *buff = fopen("e:\\buff.data", "wb");
+	assert(fr != NULL && buff != NULL);
+
+	int arr[NUM] = {0};
+	int rs = 0;
+	while (rs = fread(arr, sizeof(int), NUM, fr))
+	{
+		MergeSort(arr, rs);
+		fwrite(arr, sizeof(int), rs, buff);
+	}
+	fclose(fr);
+	fclose(buff);
+
+	copy_file(name, "e:\\buff.data");
+
+}
+
+void Smail(char *name, int gap)              //合并函数
+{
+
+	FILE *fr = fopen(name, "rb");
+	FILE *bu = fopen("e:\\buff.data", "wb");
+	assert(fr != NULL && bu != NULL);
+
+
+	int L1 = 0;
+	int H1 = L1 + gap - 1;
+	int L2 = H1 + 1;
+	int H2 = L2 + gap - 1 < MAX ? L2 + gap - 1 : MAX - 1;
+
+	int tmp = 0;
+	int arr[PART] = {0};
+	int brr[PART] = {0};
+	int crr[PART] = {0};
+
+	int i = PART;
+	int j = PART;
+	int k = 0;
+	while(L2 < MAX)
+	{
+		while(L1 <= H1 && L2 <= H2)
+		{
+			if (i == PART)
+			{
+				fseek(fr, L1 * sizeof(int), SEEK_SET);
+				fread(arr, sizeof(int), PART, fr);
+				i = 0;
+			}
+			if (j == PART)
+			{
+				fseek(fr, L2 * sizeof(int), SEEK_SET);
+				fread(brr, sizeof(int), PART, fr);
+				j = 0;
+			}
+
+			if (arr[i] <= brr[j])
+			{
+				crr[k++] = arr[i++];
+				L1++;
+			}
+			else
+			{
+				crr[k++] = brr[j++];
+				L2++;
+			}
+
+			if (k == PART)
+			{
+				fwrite(crr, sizeof(int), PART, bu);
+				k = 0;
+			}
+		}
+		fwrite(crr, sizeof(int), k, bu);
+		while(L1 <= H1)
+		{
+			fseek(fr, L1 * sizeof(int), SEEK_SET);
+			fread(&tmp, sizeof(int), 1, fr);
+			fwrite(&tmp, sizeof(int), 1, bu);
+			L1++;
+		}
+		while(L2 <= H2)
+		{
+			fseek(fr, L2 * sizeof(int), SEEK_SET);
+			fread(&tmp, sizeof(int), 1, fr);
+			fwrite(&tmp, sizeof(int), 1, bu);
+			L2++;
+		}
+
+		L1 = H2 + 1;
+		H1 = L1 + gap - 1;
+		L2 = H1 + 1;
+		H2 = L2 + gap - 1 < MAX ? L2 + gap - 1 : MAX - 1;
+
+		i = PART;
+		j = PART;
+		k = 0;
+	}
+
+	fseek(fr, L1 * sizeof(int), SEEK_SET);
+	while(fread(&tmp, sizeof(int), 1, fr))
+	{
+		fwrite(&tmp, sizeof(int), 1, bu);
+	}
+	fclose(bu);
+	fclose(fr);
+
+	copy_file(name, "e:\\buff.data");
+}
+
+void OutSort(char *name)
+{
+	Base(name);
+	for (int i = NUM; i < MAX; i *= 2)
+	{
+		Smail(name, i);
+	}
+}
+
+
+void show_bigfile(char *name)
+{
+	FILE *fr = fopen(name, "rb");
+	assert(fr != NULL);
+
+	int tmp = 0;
+	while(fread(&tmp, sizeof(int), 1, fr))
+	{
+		printf("%5d   ", tmp);
+	}
+	printf("\n");
+
+	fclose(fr);
+}
+
+int main()
+{
+	char *fname = "e:\\big.data";
+	creat_bigfile(fname, MAX);
+	OutSort(fname);
+	show_bigfile(fname);
+	return 0;
+}
+
